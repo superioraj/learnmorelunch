@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>재현고등학교 급식 정보 조회</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    h1 { margin-bottom: 1rem; }
+    label, button { font-size: 1rem; }
+    button { margin-left: 0.5rem; cursor: pointer; }
+    #result { white-space: pre-line; margin-top: 1.5rem; font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+  <h1>재현고등학교 급식 정보 조회</h1>
+  <div>
+    <label for="datePicker">날짜 선택:</label>
+    <input type="date" id="datePicker">
+    <button id="fetchBtn">급식 불러오기</button>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    const API_KEY = "730f8f37f438495eb32ea0ea0e491188";
+    const ATPT = "B10";      // 서울특별시교육청 코드
+    const SCHUL = "7010235"; // 재현고등학교 표준학교코드
+    const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+
+    // 페이지 로드 시 오늘 날짜를 기본값으로 설정
+    const dateInput = document.getElementById('datePicker');
+    const today = new Date();
+    dateInput.valueAsDate = today;
+
+    document.getElementById('fetchBtn').addEventListener('click', () => {
+      const selected = new Date(dateInput.value);
+      const day = selected.getDay();     // 일=0, 월=1, ... 토=6
+      const resultEl = document.getElementById('result');
+      if (day === 0 || day === 6) {
+        resultEl.textContent = '급식이 없습니다.';
+        return;
+      }
+      const y = selected.getFullYear();
+      const m = String(selected.getMonth() + 1).padStart(2, '0');
+      const d = String(selected.getDate()).padStart(2, '0');
+      const ymd = `${y}${m}${d}`;
+
+      const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${API_KEY}&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=${ATPT}&SD_SCHUL_CODE=${SCHUL}&MLSV_YMD=${ymd}`;
+      fetch(CORS_PROXY + encodeURIComponent(url))
+        .then(res => res.text())
+        .then(txt => JSON.parse(txt))
+        .then(json => {
+          const rows = json.mealServiceDietInfo?.[1]?.row || [];
+          const dishes = rows.map(item =>
+            item.DDISH_NM
+              .replace(/<br\s*\/?>>/gi, ', ')
+              .replace(/\([^)]*\)/g, '')
+          ).join(', ');
+          const mealStr = dishes || '급식 데이터 없음';
+          resultEl.textContent = `오늘도 우리가 정성스럽게 급식을 만들었습니다.\n오늘 식사는 ${mealStr}입니다. 맛있게 드시고, 건강하세요. 😊🍽️`;
+        })
+        .catch(err => {
+          resultEl.textContent = '오류 발생: ' + err;
+        });
+    });
+  </script>
+</body>
+</html>
