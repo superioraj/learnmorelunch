@@ -4,122 +4,129 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>재현고등학교 급식 정보 조회</title>
-  <!-- p5.js 로딩 (필수 요소는 아니지만 불러둠) -->
+  <!-- Google Fonts: IBM Plex Sans (모노스페이스 스타일이지만 가독성 좋은 Sans Serif) -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <style>
-    /* 전체 폰트 크기를 기본 대비 300%로 확대 */
+    /* 전역 설정: IBM Plex Sans, 색상, 글자 크기, 중앙 정렬 */
     body {
-      background: #f4f4f4;
-      color: #333;
-      font-family: 'Courier New', monospace;
-      text-align: center;
       margin: 0;
       padding: 2rem;
-      font-size: 300%;             /* 300% 확대 */
+      font-family: 'IBM Plex Sans', sans-serif; /* 지정한 폰트 적용 */
+      font-size: 150%;                       /* 기존 대비 150% 크기 */
+      color: #222222;                        /* 진한 그레이 색상 */
+      text-align: center;                    /* 제목과 본문 중앙 정렬 */
+      background: #f4f4f4;
       line-height: 1.2;
     }
-    /* ASCII 아트 배너 스타일 */
+    /* ASCII 아트 배너: 300% 확대 */
     .ascii-banner {
       white-space: pre;
-      font-size: 0.5em;            /* body 기준 절반 크기 */
-      line-height: 1;
+      font-size: 3em;       /* body 기준 3배 */
+      line-height: 1em;
       margin-bottom: 1rem;
-      color: #555;
+      color: #555555;
     }
-    /* 제목 스타일: 중앙 정렬 유지 */
+    /* 페이지 메인 제목 스타일 */
     h1 {
-      font-size: 1em;              /* body 기준 */
       margin: 0.5rem 0 1rem;
+      font-size: 1em;       /* body 기준 */
       letter-spacing: 0.1em;
     }
-    /* 입력 컨트롤 중앙 정렬 */
+    /* 입력 컨트롤 영역 (날짜선택+버튼) */
     .controls {
       margin-bottom: 2rem;
     }
-    label {
-      margin-right: 0.5rem;
-    }
+    /* 날짜 입력 필드: 200% 크기 */
     input[type="date"] {
-      padding: 0.2em;
-      width: 5em;
+      font-size: 1em;       /* body 기준 */
+      padding: 0.3em;
+      width: 10em;          /* 이전 5em에서 2배 확대 */
     }
+    /* 조회 버튼 스타일 */
     button {
-      padding: 0.3em 0.5em;
+      font-size: 1em;       /* body 기준 */
+      padding: 0.4em 0.8em;
       margin-left: 0.5rem;
       cursor: pointer;
       background: #0066cc;
-      color: #fff;
+      color: #ffffff;
       border: none;
-      border-radius: 0.1em;
+      border-radius: 0.2em;
       transition: background 0.3s;
     }
     button:hover {
       background: #004999;
     }
-    /* 결과 텍스트 중앙 정렬 */
+    /* 결과 출력 박스: 중앙 정렬, 가독성 높임 */
     #result {
-      white-space: pre-line;
-      margin: 0 auto;
-      padding: 0.5em;
-      background: #fff;
-      border-radius: 0.1em;
-      text-align: center;          /* 중앙 정렬 */
-      box-shadow: 0 0.1em 0.5em rgba(0,0,0,0.1);
+      display: inline-block;
+      text-align: center;
+      white-space: pre-line;  /* 줄바꿈 유지 */
+      padding: 1em;
+      background: #ffffff;
+      border-radius: 0.5em;
+      box-shadow: 0 0.2em 0.5em rgba(0,0,0,0.1);
       max-width: 30em;
+      font-size: 1em;         /* body 기준 */
     }
   </style>
 </head>
 <body>
-  <!-- 상단 ASCII 디자인 그래픽 아트웍 -->
+  <!-- 상단 ASCII 아트 배너: 'LUNCH' 텍스트 아트워크 -->
   <div class="ascii-banner">
-    ╔═╗┌─┐┬─┐┬┌─┐┌┬┐   ╔═╗┬  ┌─┐
-    ╚═╗├┤ ├┬┘││   │    ║ ╦│  ├─┤
-    ╚═╝└─┘┴└─┴└─┘ ┴    ╚═╝┴─┘┴ ┴
+    ██╗     ██╗███╗   ██╗██╗   ██╗ ██████╗
+    ██║     ██║████╗  ██║██║   ██║██╔════╝
+    ██║     ██║██╔██╗ ██║██║   ██║█████╗  
+    ██║     ██║██║╚██╗██║██║   ██║██╔══╝  
+    ███████╗██║██║ ╚████║╚██████╔╝███████╗
+    ╚══════╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝
   </div>
 
-  <!-- 중앙 정렬된 제목 -->
+  <!-- 페이지 주요 제목 -->
   <h1>재현고등학교 급식 정보 조회</h1>
 
-  <!-- 날짜 선택 및 조회 버튼 -->
+  <!-- 날짜 선택과 버튼 컨트롤 -->
   <div class="controls">
     <label for="datePicker">날짜 선택</label>
     <input type="date" id="datePicker">
     <button id="fetchBtn">급식 불러오기</button>
   </div>
 
-  <!-- 결과가 중앙에 표시됨 -->
+  <!-- API 호출 결과 표시 영역 -->
   <div id="result"></div>
 
   <script>
-    const API_KEY = "730f8f37f438495eb32ea0ea0e491188"; // NEIS 인증키
-    const ATPT = "B10";      // 서울특별시교육청 코드
-    const SCHUL = "7010235"; // 재현고등학교 학교 코드
-    const CORS_PROXY = "https://api.allorigins.win/raw?url="; // CORS 우회
+    // NEIS API용 상수 정의
+    const API_KEY = "730f8f37f438495eb32ea0ea0e491188"; // 인증키
+    const ATPT = "B10";      // 서울교육청 코드
+    const SCHUL = "7010235"; // 재현고등학교 코드
+    const CORS_PROXY = "https://api.allorigins.win/raw?url="; // CORS 우회용
 
-    // 날짜 입력 필드를 오늘 날짜로 초기화
+    // 페이지 로드시 날짜 입력을 오늘로 초기화
     const dateInput = document.getElementById('datePicker');
     dateInput.valueAsDate = new Date();
 
-    // 버튼 클릭 시 급식 정보 요청
+    // '급식 불러오기' 버튼 클릭 이벤트
     document.getElementById('fetchBtn').addEventListener('click', () => {
-      const selected = new Date(dateInput.value);
-      const weekday = selected.getDay(); // 일=0, 토=6
+      const selected = new Date(dateInput.value); // 선택된 날짜 객체
+      const weekday = selected.getDay();          // 일=0, ... 토=6
       const resultEl = document.getElementById('result');
-      resultEl.textContent = '';
+      resultEl.textContent = '';                 // 이전 텍스트 초기화
 
-      // 주말 처리
+      // 주말(토, 일)에는 급식 없음
       if (weekday === 0 || weekday === 6) {
         resultEl.textContent = '급식이 없습니다.';
-        return;
+        return; // 함수 종료
       }
 
-      // YYYYMMDD 포맷 생성
+      // YYYYMMDD 형식 문자열 생성
       const y = selected.getFullYear();
       const m = String(selected.getMonth() + 1).padStart(2, '0');
       const d = String(selected.getDate()).padStart(2, '0');
       const ymd = `${y}${m}${d}`;
 
-      // API 호출 URL
+      // NEIS API 호출 URL 조합
       const url =
         `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${API_KEY}` +
         `&Type=json&pIndex=1&pSize=100` +
@@ -127,27 +134,28 @@
         `&SD_SCHUL_CODE=${SCHUL}` +
         `&MLSV_YMD=${ymd}`;
 
-      // fetch를 이용하여 데이터 요청
+      // fetch를 통해 데이터 요청 및 처리
       fetch(CORS_PROXY + encodeURIComponent(url))
-        .then(res => res.text())
-        .then(txt => JSON.parse(txt))
+        .then(res => res.text())           // 응답을 텍스트 형태로 획득
+        .then(txt => JSON.parse(txt))      // JSON 파싱
         .then(json => {
-          // 응답 데이터에서 급식 배열 추출
+          // 데이터 구조에서 급식 배열(row) 추출
           const rows = json.mealServiceDietInfo?.[1]?.row || [];
-          // <br>, 괄호 제거 후 문자열 생성
+          // <br> 태그와 괄호 제거 후 메뉴 문자열 결합
           const dishes = rows.map(item =>
             item.DDISH_NM
-              .replace(/<br\s*\/?>/gi, ', ')
-              .replace(/\([^)]*\)/g, '')
+              .replace(/<br\s*\/?>/gi, ', ') // <br> → 쉼표
+              .replace(/\([^)]*\)/g, '')      // (…코드…) 제거
           ).join(', ');
           const mealStr = dishes || '급식 데이터 없음';
 
-          // 친절 메시지 표시
+          // 사용자 친절 메시지 출력
           resultEl.textContent =
             `오늘도 우리가 정성스럽게 급식을 만들었습니다.\n` +
             `오늘 식사는 ${mealStr}입니다. 맛있게 드시고, 건강하세요. 😊🍽️`;
         })
         .catch(err => {
+          // 오류 발생 시 표시
           resultEl.textContent = '오류 발생: ' + err;
         });
     });
